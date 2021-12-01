@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Pointblue Item 1</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+     <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+     <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/1.29.0/date_fns.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+            <a class="navbar-brand" href="#">POINTBLUE</a>
+            </div>
+            <ul class="nav navbar-nav">
+            <li><a href="item_1.html">ITEM 1</a></li>
+            <li><a href="item_2.html">ITEM 2</a></li>
+            <li><a href="item_3.html">ITEM 3</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="container">
+            <p>
+                <strong>Item 1</strong>  : Create a leave form using javascript (Google Apps Script is a plus) that can accommodate the following requests based on 24 days of leaves:
+                Create a database and user interface for this item.Half-day filling Whole day filling Leave date selection by range (example June 3 - 8, but will automatically exclude the weekends) 
+                Automatically reflect leave balance Automatically computes pro-rated accumulate leave from the month of January to the current month (November) Provide the readme file with your submission
+            </p>
+            <hr>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#leaveModal">Submit Leave Request</button>
+            <br> <br>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Date Filed</th>
+                    <th>Type</th>
+                    <th>Leave Date</th>
+                    <th>Leave Count</th>
+                    <th>Remarks</th>
+                </tr>
+                </thead>
+                <tbody id='all-data'></tbody>
+            </table>
+            Pro-rated accumulate leave  as of <span id='month'></span> :  <span id='accumulated_leave'></span> <br>
+            Available Leave <span id="available-leave"></span>
+        </div>
+    </div>
+
+    <div class="modal fade" id="leaveModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Leave Form</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <form  id='submit_data' enctype="multipart/form-data" onsubmit="submit_file_leave();return false;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="leave-type">Leave Type</label>
+                                <select id="leave-type" class="form-control" required>
+                                    <option value="">Choose One</option>
+                                    <option value="Whole Day">Whole Day</option>
+                                    <option value="Half Day">Half Day</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="date-from">Date From</label>
+                                <input type="date" name="" id="date-from" onchange="date_range(this.value)" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="date-to">Date To</label>
+                                <input type="date" name="" id="date-to" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="remarks">Remarks</label>
+                                <textarea id="remarks" cols="30" rows="5" class="form-control" placeholder="Remarks" required></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12 text-center">
+                            <button type="submit" class="btn btn-primary"> Save </button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <script type="text/javascript">
+        window.onload = getAllLeaves();
+        function date_range(value)
+		{
+			$('#date-to').val(''); 
+			document.getElementById('date-to').min = value;
+		}
+        function formatDate(date) {
+            var d = new Date(date),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+
+            if (month.length < 2) 
+                month = '0' + month;
+            if (day.length < 2) 
+                day = '0' + day;
+            return [year, month, day].join('-');
+        }
+
+        function submit_file_leave(){
+            var date_today = new Date();
+            var leave_type = document.getElementById("leave-type").value;
+            var date_from = document.getElementById("date-from").value;
+            var date_to = document.getElementById("date-to").value;
+            var remarks = document.getElementById("remarks").value;
+            
+            var date_today = formatDate(date_today);
+            var from = formatDate(date_from);
+            var to = formatDate(date_to);
+
+            var dates = dateFns.eachDay(new Date(from),new Date(to));
+            dates.forEach(e => {
+                var date = formatDate(e);
+                if(e.getDay() == 6 || e.getDay() == 0){
+                    // console.log('weekend');
+                }else{
+                    //Save 
+                    if(leave_type == "Whole Day")
+                    {
+                        var count_leave = 1;
+                        const url = "http://localhost:3000/add-file-leave/"+leave_type+"/"+date+"/"+remarks+"/"+count_leave+"/"+date_today+"";
+                        fetch(url)
+                        .then(res => res.json())
+                        .then((data) => {
+                        })
+                        .catch(err => { throw err });  ;
+                    }
+                    else
+                    {
+                        var count_leave = 0.5;
+                        const url = "http://localhost:3000/add-file-leave/"+leave_type+"/"+date+"/"+remarks+"/"+count_leave+"/"+date_today+""; 
+                        fetch(url)
+                        .then(res => res.json())
+                        .then((data) => {
+                        })
+                        .catch(err => { throw err });  ;
+                    }
+                }
+            });
+            location.reload();
+        }
+        function getAllLeaves(){
+            const today = new Date();
+            const month = today.toLocaleString('default', { month: 'long' });
+            document.getElementById("month").innerHTML = month;
+
+            const url = "http://localhost:3000/all-leaves"; 
+            fetch(url)
+            .then(res => res.json())
+            .then((data) => {
+                var total_count_leave = 0;
+                var count_leave = today.getMonth()+1;
+                count_leave = (count_leave/12)*24;
+                document.getElementById("accumulated_leave").innerHTML = count_leave;
+                data.forEach(e => {
+                    total_count_leave = total_count_leave+parseFloat(e.leave_count);
+                    var new_row = '<tr>' + 
+                                    '<td>' + formatDate(e.date_filed) +  '</td>' + 
+                                    '<td>' + e.leave_type +  '</td>' + 
+                                    '<td>' + formatDate(e.date_from) +  '</td>' + 
+                                    '<td>' + e.leave_count +  '</td>' + 
+                                    '<td>' + e.remarks +  '</td>' + 
+                                  '</tr>';
+                    $("#all-data").append(new_row);
+                })
+                var new_leave = count_leave - total_count_leave;
+                document.getElementById("available-leave").innerHTML = new_leave;
+            })
+            .catch(err => { throw err });  ;
+        }
+    </script>
+</body>
+</html>

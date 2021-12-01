@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Pointblue Item 2</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+            <a class="navbar-brand" href="#">POINTBLUE</a>
+            </div>
+            <ul class="nav navbar-nav">
+            <li><a href="item_1.html">ITEM 1</a></li>
+            <li><a href="item_2.html">ITEM 2</a></li>
+            <li><a href="item_3.html">ITEM 3</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div id="app">
+        <div class="container">
+            <div class="container">
+                <p>
+                    <strong>Item 2</strong>  : Create an interactive payment calculator that will compute the breakdown of the Net Total Amount Payable in every transaction with a vendor, based on the sample model. Use appscript/ javascript in replicating this calculator into a web app.
+                    Note: the formulas used are indicated in the cells (in blue font)"		       
+                </p>
+                
+                <table class="table table-bordered">
+                    <tr>
+                        <td colspan="4" align="center"><strong>Vendor Payment Calculator</strong></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" align="center">Given Data</td>
+                    </tr>
+                    <tr>
+                        <td align="right">Vendor Name</td>
+                        <td>Company A</td>
+                        <td align="right">Total Material Cost</td>
+                        <td align="right">37,180.80 ({{qouted_price_vat_status}})</td>
+                    </tr>
+                    <tr>
+                        <td align="right">Vendor VAT Status</td>
+                        <td>{{ vendor_vat_status == 'VAT' ? 'VAT Registered' : 'Non-VAT Registered'}}</td>
+                        <td align="right">Total Labor Cost</td>
+                        <td align="right">8,000.00 ({{qouted_price_vat_status}})</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"></td>
+                        <td align="right">Total Cost</td>
+                        <td align="right">₱45,180.80 ({{qouted_price_vat_status}})</td>
+                    </tr>
+                </table>
+
+                <table class="table table-bordered" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <td colspan="2" align="center">Controls</td>
+                            <td colspan="4" align="center">Computation</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Vendor Status -->
+                        <tr>
+                            <!-- Controls -->
+                            <td>Vendor VAT Status</td>
+                            <td>
+                                <select style="width:100%;" v-model="vendor_vat_status" @change="computation()">
+                                    <option value="VAT">VAT</option>
+                                    <option value="Non-VAT">Non-VAT</option>
+                                </select>
+                            </td>
+                             <!-- Computation -->
+                            <td></td>
+                            <td>Material Cost</td>
+                            <td>Labor Cost</td>
+                            <td>Total Cost</td>
+                        </tr>
+
+                        <!-- Qouted Price VAT Status -->
+                        <tr>
+                            <!-- Controls -->
+                            <td>Quoted Price VAT Status	</td>
+                            <td>
+                                <select style="width:100%;" v-model="qouted_price_vat_status" @change="computation()">
+                                    <option value="VATEx">VATEx</option>
+                                    <option value="VATInc">VATInc</option>
+                                </select>
+                            </td>
+
+                            <!-- Computation -->
+                            <td>Total Cost (VATInc)</td>
+                            <td>{{total_cost_vatinc_material_cost}}</td>
+                            <td>{{total_cost_vatinc_labor_cost}}</td>
+                            <td>{{total_cost_vatinc_total_cost}}</td>
+                        </tr>
+
+                        <!-- EWT Rate -->
+                        <tr>
+                            <!-- Controls -->
+                            <td>EWT Rate</td>
+                            <td>
+                                <input type="number" style="width:100%" v-model="ewt_rate" step="0.01" @change="computation()">
+                            </td>
+
+                            <!-- Computation -->
+                            <td>Less: Order Discount Applied on VATInc</td>
+                            <td>{{less_order_discount_applied_on_vatinc_material_cost}}</td>
+                            <td>{{less_order_discount_applied_on_vatinc_labor_cost}}</td>
+                            <td>{{less_order_discount_applied_on_vatinc_total_cost}}</td>
+                        </tr>
+
+                        <!-- Less: VAT -->
+                        <tr>
+                            <td colspan="2"></td>
+
+                            <!-- Computation -->
+                            <td>Less: VAT</td>
+                            <td>{{less_vat_material_cost}}</td>
+                            <td>{{less_vat_labor_cost}}</td>
+                            <td>{{less_vat_total_cost}}</td>
+                        </tr>
+
+                        <!-- Order Discount ------------------------------------------------------------------------>
+                        <tr>
+                            <td>Order Discount</td>
+                            <td colspan="5"></td>
+                        </tr>
+
+                        <!-- Discount applied on -->
+                        <tr>
+                            <!-- Controls -->
+                            <td>Discount applied on	</td>
+                            <td>
+                                <select style="width:100%;" v-model="discount_applied_on" @change="computation()">
+                                    <option value="VATInc Price">VATInc Price</option>
+                                    <option value="VATEx Price">VATEx Price</option>
+                                </select>
+                            </td>
+
+                            <!-- Computation -->
+                            <td>Total Amount (VATEx)</td>
+                            <td>{{total_amount_vatex_material_cost}}</td>
+                            <td>{{total_amount_vatex_labor_cost}}</td>
+                            <td>{{total_amount_vatex_total_cost}}</td>
+                        </tr>
+
+                        <!-- Less: Order Discount Applied on VATEx Comutation ------------------------------- -->
+                        <tr>
+                            <td colspan="2"></td>
+                            <td>Less: Order Discount Applied on VATEx</td>
+                            <td>{{less_order_discount_applied_on_vatex_material_cost}}</td>
+                            <td>{{less_order_discount_applied_on_vatex_labor_cost}}</td>
+                            <td>{{less_order_discount_applied_on_vatex_total_cost}}</td>
+                        </tr>
+
+                        <!-- % of Cost discount	 -->
+                        <tr>
+                            <!-- Controls -->
+                            <td>% of Cost discount</td>
+                            <td>
+                                <input type="number" style="width:100%" v-model="percent_of_cost_discount" @change="computation()">
+                            </td>
+
+                            <!-- Computation -->
+                            <td>Discounted Total Cost (VATEx)</td>
+                            <td>{{discounted_total_cost_vatex_material_cost}}</td>
+                            <td>{{discounted_total_cost_vatex_labor_cost}}</td>
+                            <td>{{discounted_total_cost_vatex_total_cost}}</td>
+                        </tr>
+
+                        <!-- discounted on	 -->
+                        <tr>
+                            <!-- controls -->
+                            <td>discounted on </td>
+                            <td>
+                                <select style="width:100%;" v-model="percent_discounted_on" @change="computation()">
+                                    <option value="Material Cost">Material Cost</option>
+                                    <option value="L&E Cost">L&E Cost</option>
+                                    <option value="Total Cost">Total Cost</option>
+                                </select>
+                            </td>
+
+                            <!-- computation -->
+                            <td>Add: VAT</td>
+                            <td>{{add_vat_material_cost}}</td>
+                            <td>{{add_vat_labor_cost}}</td>
+                            <td>{{add_vat_total_cost}}</td>
+                        </tr>
+
+                        <!-- Less:  EWT Computation ----------------------------------------------------------------------- -->
+                        <tr>
+                            <td colspan="2"></td>
+
+                            <!-- Computation -->
+                            <td>Less:  EWT</td>
+                            <td style="background-color: dimgray;"></td>
+                            <td>{{less_ewt_labor_cost}}</td>
+                            <td>{{less_ewt_total_cost}}</td>
+                        </tr>
+
+
+                        <!-- Fixed Amount -->
+                        <tr>
+                            <!-- Controls -->
+                            <td>Fixed Amount</td>
+                            <td>
+                                <input type="number" style="width:100%" v-model="fixed_amount" @change="computation()">
+                            </td>
+
+                            <!-- Computation -->
+                            <td>Add: Shipment / Delivery Cost</td>
+                            <td style="background-color: dimgray;"></td>
+                            <td style="background-color: dimgray;"></td>
+                            <td>
+                                <input type="number" style="width:100px" v-model="add_shipment_delivery_cost" @change="computation()">
+                            </td>
+                        </tr>
+
+                        <!-- Fixed Amount discounted on -->
+                        <tr>
+                            <!-- controls -->
+                            <td>discounted on</td>
+                            <td>    
+                                <select style="width:100%;" v-model="fixed_amount_discounted_on" @change="computation()">
+                                    <option value="Material Cost">Material Cost</option>
+                                    <option value="L&E Cost">L&E Cost</option>
+                                </select>
+                            </td>
+                           
+
+                            <!-- computation -->
+                            <td><strong>NET TOTAL AMOUNT PAYABLE</strong></td>
+                            <td style="background-color: dimgray;"></td>
+                            <td style="background-color: dimgray;"></td>
+                            <td>{{net_total_amount_payable}}</td>
+                        </tr>
+
+
+                    </tbody>
+                    
+                </table>
+
+
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                // Controls---------------------------------------------
+                    total_material_cost: 37180.80,
+                    total_labor_cost: 8000,
+                    vendor_vat_status : 'VAT',
+                    qouted_price_vat_status : 'VATEx',
+                    ewt_rate : 0.00,
+
+                    //Order Discount
+                    discount_applied_on : 'VATInc Price',
+                    percent_of_cost_discount : 0.00,
+                    percent_discounted_on : 'Material Cost',
+
+                    //Fixed Amount
+                    fixed_amount:0.00,
+                    fixed_amount_discounted_on :'Material Cost',
+                
+                //Computations------------------------------------------
+                    total_cost_vatinc_material_cost : 0.00,
+                    total_cost_vatinc_labor_cost : 0.00,
+                    total_cost_vatinc_total_cost : 0.00,
+
+                    less_order_discount_applied_on_vatinc_material_cost : 0.00,
+                    less_order_discount_applied_on_vatinc_labor_cost : 0.00,
+                    less_order_discount_applied_on_vatinc_total_cost : 0.00,
+
+                    less_vat_material_cost : 0.00,
+                    less_vat_labor_cost : 0.00,
+                    less_vat_total_cost : 0.00,
+
+                    total_amount_vatex_material_cost: 0.00,
+                    total_amount_vatex_labor_cost: 0.00,
+                    total_amount_vatex_total_cost: 0.00,
+
+                    less_order_discount_applied_on_vatex_material_cost : 0.00,
+                    less_order_discount_applied_on_vatex_labor_cost : 0.00,
+                    less_order_discount_applied_on_vatex_total_cost : 0.00,
+
+                    discounted_total_cost_vatex_material_cost : 0.00,
+                    discounted_total_cost_vatex_labor_cost : 0.00,
+                    discounted_total_cost_vatex_total_cost : 0.00,
+
+                    add_vat_material_cost : 0.00,
+                    add_vat_labor_cost : 0.00,
+                    add_vat_total_cost : 0.00,
+
+                    less_ewt_labor_cost : 0.00,
+                    less_ewt_total_cost : 0.00,
+
+                    add_shipment_delivery_cost : 1200,
+
+                    net_total_amount_payable :  0.00,
+
+            },
+            created () {
+                this.computation();
+            },
+            methods : {
+                computation(){
+                    //Total Cost (VATInc)
+                    if(this.vendor_vat_status == 'Non-VAT'){
+                        this.total_cost_vatinc_material_cost = 0.00;
+                        this.total_cost_vatinc_labor_cost = 0.00;
+                        this.total_cost_vatinc_total_cost = 0.00;
+                    }else{
+                        //Total Cost (VATInc)
+                        if(this.qouted_price_vat_status == 'VATInc'){
+                            this.total_cost_vatinc_material_cost = this.total_material_cost;
+                            this.total_cost_vatinc_labor_cost = this.total_labor_cost;
+                            this.total_cost_vatinc_total_cost = this.total_material_cost + this.total_labor_cost;
+                        }else{
+                            this.total_cost_vatinc_material_cost = 0.00;
+                            this.total_cost_vatinc_labor_cost = 0.00;
+                            this.total_cost_vatinc_total_cost = 0.00;
+                        }
+                    }
+
+                    //Less: Order Discount Applied on VATInc
+                    if(this.vendor_vat_status == 'Non-VAT'){
+                        this.less_order_discount_applied_on_vatinc_material_cost = 0.00;
+                        this.less_order_discount_applied_on_vatinc_labor_cost = 0.00;
+                        this.less_order_discount_applied_on_vatinc_total_cost = 0.00;
+                    }else{
+                        
+                        if(this.qouted_price_vat_status == 'VATEx'){
+                            this.less_order_discount_applied_on_vatinc_material_cost = 0.00;
+                            this.less_order_discount_applied_on_vatinc_labor_cost = 0.00;
+                            this.less_order_discount_applied_on_vatinc_total_cost = 0.00;
+                        }else{
+                            
+                            if(this.discount_applied_on == 'VATEx Price'){
+                                this.less_order_discount_applied_on_vatinc_material_cost = 0.00;
+                                this.less_order_discount_applied_on_vatinc_labor_cost = 0.00;
+                                this.less_order_discount_applied_on_vatinc_total_cost = 0.00;
+                            }else{
+                                //Material Cost
+                                if(this.percent_discounted_on == 'Material Cost'){
+                                    var less_order_discount_applied_on_vatinc_material_cost =  (this.total_material_cost * this.percent_of_cost_discount) + Number(this.fixed_amount);
+                                    this.less_order_discount_applied_on_vatinc_material_cost = less_order_discount_applied_on_vatinc_material_cost.toFixed(2);
+                                    this.less_order_discount_applied_on_vatinc_labor_cost = 0.00;
+                                    this.less_order_discount_applied_on_vatinc_total_cost = less_order_discount_applied_on_vatinc_material_cost.toFixed(2);
+                                }
+                                //L&E Cost
+                                else if(this.percent_discounted_on == 'L&E Cost'){
+                                    this.less_order_discount_applied_on_vatinc_material_cost = Number(this.fixed_amount);
+                                    this.less_order_discount_applied_on_vatinc_labor_cost =  (this.total_labor_cost * this.percent_of_cost_discount);
+                                    this.less_order_discount_applied_on_vatinc_total_cost = this.less_order_discount_applied_on_vatinc_material_cost + this.less_order_discount_applied_on_vatinc_labor_cost;
+                                }
+                                else{
+                                    this.less_order_discount_applied_on_vatinc_material_cost = (this.total_material_cost * this.percent_of_cost_discount) + Number(this.fixed_amount);
+                                    this.less_order_discount_applied_on_vatinc_labor_cost = (this.total_labor_cost * this.percent_of_cost_discount);
+                                    this.less_order_discount_applied_on_vatinc_total_cost = this.less_order_discount_applied_on_vatinc_material_cost + this.less_order_discount_applied_on_vatinc_labor_cost;
+                                }
+                            }
+                        }
+                    }
+
+                    //Less: VAT
+                    if(this.vendor_vat_status == 'Non-VAT'){
+                        this.less_vat_material_cost = 0.00;
+                        this.less_vat_labor_cost = 0.00;
+                        this.less_vat_total_cost = 0.00;
+                    }else{
+                        if(this.qouted_price_vat_status == 'VATEx'){
+                            this.less_vat_material_cost = 0.00;
+                            this.less_vat_labor_cost = 0.00;
+                            this.less_vat_total_cost = 0.00;
+                        }else{
+                            var less_vat_material_cost = ((this.total_material_cost - this.less_order_discount_applied_on_vatinc_material_cost) / 1.12)*.12;
+                            var less_vat_labor_cost = ((this.total_cost_vatinc_labor_cost - this.less_order_discount_applied_on_vatinc_labor_cost) / 1.12)*.12;
+                            var less_vat_total_cost = less_vat_material_cost + less_vat_labor_cost;
+                            
+                            this.less_vat_material_cost = less_vat_material_cost.toFixed(2);
+                            this.less_vat_labor_cost = less_vat_labor_cost.toFixed(2);
+                            this.less_vat_total_cost = less_vat_total_cost.toFixed(2);
+                        }
+                    }
+
+                    //Total Amount (VATEx)
+                    if(this.qouted_price_vat_status == 'VATEx'){
+                        var total_amount_vatex_total_cost = this.total_material_cost + this.total_labor_cost;
+                        this.total_amount_vatex_material_cost =  this.total_material_cost.toFixed(2);
+                        this.total_amount_vatex_labor_cost =  this.total_labor_cost.toFixed(2);
+                        this.total_amount_vatex_total_cost =  total_amount_vatex_total_cost.toFixed(2);
+                    }else{
+
+                        var total_amount_vatex_material_cost = this.total_cost_vatinc_material_cost - this.less_order_discount_applied_on_vatinc_material_cost - this.less_vat_material_cost;
+                        var total_amount_vatex_labor_cost = this.total_cost_vatinc_labor_cost - this.less_order_discount_applied_on_vatinc_labor_cost - this.less_vat_labor_cost;
+                        var total_amount_vatex_total_cost = total_amount_vatex_material_cost + total_amount_vatex_labor_cost;
+
+                        this.total_amount_vatex_material_cost = total_amount_vatex_material_cost.toFixed(2);
+                        this.total_amount_vatex_labor_cost = total_amount_vatex_labor_cost.toFixed(2);
+                        this.total_amount_vatex_total_cost = total_amount_vatex_total_cost.toFixed(2);
+
+                    }
+
+                    //Less: Order Discount Applied on VATEx
+                    if(this.discount_applied_on == 'VATInc Price'){
+                        this.less_order_discount_applied_on_vatex_material_cost = 0.00;
+                        this.less_order_discount_applied_on_vatex_labor_cost = 0.00;
+                        this.less_order_discount_applied_on_vatex_total_cost = 0.00;
+                    }else{
+                        if(this.qouted_price_vat_status == 'VATInc'){
+                            if(this.percent_discounted_on == 'Material Cost'){
+                                if(this.fixed_amount_discounted_on == 'Material Cost'){
+                                    var less_order_discount_applied_on_vatex_material_cost = (this.total_amount_vatex_material_cost * this.percent_of_cost_discount) + Number(this.fixed_amount);
+                                    this.less_order_discount_applied_on_vatex_material_cost = less_order_discount_applied_on_vatex_material_cost.toFixed(2);
+                                    this.less_order_discount_applied_on_vatex_labor_cost = 0.00;
+                                    this.less_order_discount_applied_on_vatex_total_cost = this.less_order_discount_applied_on_vatex_material_cost + this.less_order_discount_applied_on_vatex_labor_cost;
+                                }else{
+                                    var less_order_discount_applied_on_vatex_material_cost = (this.total_amount_vatex_material_cost * this.percent_of_cost_discount);
+                                    this.less_order_discount_applied_on_vatex_material_cost = less_order_discount_applied_on_vatex_material_cost.toFixed(2);
+                                    this.less_order_discount_applied_on_vatex_labor_cost = this.fixed_amount;
+                                    this.less_order_discount_applied_on_vatex_total_cost = Number(this.less_order_discount_applied_on_vatex_material_cost) + Number(this.less_order_discount_applied_on_vatex_labor_cost);
+                                }
+                            }
+                            else if(this.percent_discounted_on == 'L&E Cost'){
+                                if(this.fixed_amount_discounted_on == 'Material Cost'){
+                                    this.less_order_discount_applied_on_vatex_material_cost = this.fixed_amount;
+                                    this.less_order_discount_applied_on_vatex_labor_cost = (Number(this.total_cost_vatinc_labor_cost) + Number(this.total_amount_vatex_labor_cost)) - Number(this.less_vat_labor_cost);
+                                    this.less_order_discount_applied_on_vatex_total_cost = Number(this.less_order_discount_applied_on_vatex_material_cost) + Number(this.less_order_discount_applied_on_vatex_labor_cost);     
+                                }else{
+                                    this.less_order_discount_applied_on_vatex_material_cost = 0.00;
+                                    this.less_order_discount_applied_on_vatex_labor_cost = Number(this.total_amount_vatex_labor_cost) * Number(this.percent_of_cost_discount) + Number(this.fixed_amount);
+                                    this.less_order_discount_applied_on_vatex_total_cost = Number(this.less_order_discount_applied_on_vatex_material_cost) + Number(this.less_order_discount_applied_on_vatex_labor_cost);  
+                                }
+                            }else{
+                                if(this.fixed_amount_discounted_on == 'Material Cost'){
+                                    var less_order_discount_applied_on_vatex_material_cost = (this.total_amount_vatex_material_cost * this.percent_of_cost_discount) + Number(this.fixed_amount);
+                                    this.less_order_discount_applied_on_vatex_material_cost = less_order_discount_applied_on_vatex_material_cost.toFixed(2);
+
+                                    this.less_order_discount_applied_on_vatex_labor_cost = (Number(this.total_cost_vatinc_labor_cost) + Number(this.total_amount_vatex_labor_cost)) - Number(this.less_vat_labor_cost);
+                                    this.less_order_discount_applied_on_vatex_total_cost = Number(this.less_order_discount_applied_on_vatex_material_cost) + Number(this.less_order_discount_applied_on_vatex_labor_cost);     
+                                }else{
+                                    this.less_order_discount_applied_on_vatex_material_cost = (this.total_amount_vatex_material_cost * this.percent_of_cost_discount);
+                                    this.less_order_discount_applied_on_vatex_labor_cost = (Number(this.total_amount_vatex_labor_cost) * Number(this.percent_of_cost_discount)) + Number(this.fixed_amount);
+                                    this.less_order_discount_applied_on_vatex_total_cost = Number(this.less_order_discount_applied_on_vatex_material_cost) + Number(this.less_order_discount_applied_on_vatex_labor_cost);  
+                                }
+                            }
+                        }
+                        else{
+                            if(this.percent_discounted_on == 'Material Cost'){
+                                if(this.fixed_amount_discounted_on == 'Material Cost'){
+                                    var less_order_discount_applied_on_vatex_material_cost = (this.total_amount_vatex_material_cost * this.percent_of_cost_discount) + Number(this.fixed_amount);
+                                    this.less_order_discount_applied_on_vatex_material_cost = less_order_discount_applied_on_vatex_material_cost.toFixed(2);
+                                    this.less_order_discount_applied_on_vatex_labor_cost = 0.00;
+                                    this.less_order_discount_applied_on_vatex_total_cost = this.less_order_discount_applied_on_vatex_material_cost + this.less_order_discount_applied_on_vatex_labor_cost;
+                                }else{
+                                    var less_order_discount_applied_on_vatex_material_cost = (this.total_amount_vatex_material_cost * this.percent_of_cost_discount);
+                                    this.less_order_discount_applied_on_vatex_material_cost = less_order_discount_applied_on_vatex_material_cost.toFixed(2);
+                                    this.less_order_discount_applied_on_vatex_labor_cost = Number(this.fixed_amount);
+                                    this.less_order_discount_applied_on_vatex_total_cost = Number(this.less_order_discount_applied_on_vatex_material_cost) + Number(this.less_order_discount_applied_on_vatex_labor_cost);
+                                }
+                            }
+                            else if(this.percent_discounted_on == 'L&E Cost'){
+                                if(this.fixed_amount_discounted_on == 'Material Cost'){
+                                    this.less_order_discount_applied_on_vatex_material_cost = this.fixed_amount;
+                                    this.less_order_discount_applied_on_vatex_labor_cost = Number(this.total_amount_vatex_labor_cost) * Number(this.percent_of_cost_discount);
+                                    this.less_order_discount_applied_on_vatex_total_cost = Number(this.less_order_discount_applied_on_vatex_material_cost) + Number(this.less_order_discount_applied_on_vatex_labor_cost);     
+                                }else{
+                                    this.less_order_discount_applied_on_vatex_material_cost = 0.00;
+                                    this.less_order_discount_applied_on_vatex_labor_cost = Number(this.total_amount_vatex_labor_cost) * Number(this.percent_of_cost_discount) + Number(this.fixed_amount);
+                                    this.less_order_discount_applied_on_vatex_total_cost = Number(this.less_order_discount_applied_on_vatex_material_cost) + Number(this.less_order_discount_applied_on_vatex_labor_cost);  
+                                }
+                            }else{
+                                if(this.fixed_amount_discounted_on == 'Material Cost'){
+                                    var less_order_discount_applied_on_vatex_material_cost = (this.total_amount_vatex_material_cost * this.percent_of_cost_discount) + Number(this.fixed_amount);
+                                    this.less_order_discount_applied_on_vatex_material_cost = less_order_discount_applied_on_vatex_material_cost.toFixed(2);
+
+                                    this.less_order_discount_applied_on_vatex_labor_cost = Number(this.total_amount_vatex_labor_cost) * Number(this.percent_of_cost_discount);
+                                    this.less_order_discount_applied_on_vatex_total_cost = Number(this.less_order_discount_applied_on_vatex_material_cost) + Number(this.less_order_discount_applied_on_vatex_labor_cost);     
+                                }else{
+                                    this.less_order_discount_applied_on_vatex_material_cost = (this.total_amount_vatex_material_cost * this.percent_of_cost_discount);
+                                    this.less_order_discount_applied_on_vatex_labor_cost = (Number(this.total_amount_vatex_labor_cost) * Number(this.percent_of_cost_discount)) + Number(this.fixed_amount);
+                                    this.less_order_discount_applied_on_vatex_total_cost = Number(this.less_order_discount_applied_on_vatex_material_cost) + Number(this.less_order_discount_applied_on_vatex_labor_cost);  
+                                }
+                            }
+                        }
+                    }
+
+                    //Discounted Total Cost (VATEx)	
+                    if(this.qouted_price_vat_status == 'VATInc'){
+                        this.discounted_total_cost_vatex_material_cost = (Number(this.total_cost_vatinc_material_cost) - Number(this.total_amount_vatex_labor_cost)) - Number(this.less_order_discount_applied_on_vatex_material_cost);
+                        this.discounted_total_cost_vatex_labor_cost = (Number(this.total_cost_vatinc_labor_cost) - Number(this.less_vat_labor_cost)) - Number(this.less_order_discount_applied_on_vatex_material_cost);
+                        this.discounted_total_cost_vatex_total_cost = Number(this.discounted_total_cost_vatex_material_cost) + Number(this.discounted_total_cost_vatex_labor_cost);
+                    }else{
+                        this.discounted_total_cost_vatex_material_cost = Number(this.total_amount_vatex_material_cost) - Number(this.less_order_discount_applied_on_vatex_material_cost);
+                        this.discounted_total_cost_vatex_labor_cost = Number(this.total_amount_vatex_labor_cost) - Number(this.less_order_discount_applied_on_vatex_labor_cost);
+                        this.discounted_total_cost_vatex_total_cost = Number(this.discounted_total_cost_vatex_material_cost) + Number(this.discounted_total_cost_vatex_labor_cost);
+                    }
+
+                    //Add: VAT
+                    if(this.vendor_vat_status == 'Non-VAT'){
+                        this.add_vat_material_cost = 0.00;
+                        this.add_vat_labor_cost = 0.00;
+                        this.add_vat_total_cost = 0.00;
+                    }else{
+
+                        var add_vat_material_cost = Number(this.discounted_total_cost_vatex_material_cost) * .12;
+                        var add_vat_labor_cost = Number(this.discounted_total_cost_vatex_labor_cost) * .12;
+                        var add_vat_total_cost = add_vat_material_cost + add_vat_labor_cost;
+
+                        this.add_vat_material_cost = add_vat_material_cost.toFixed(2);
+                        this.add_vat_labor_cost = add_vat_labor_cost.toFixed(2);
+                        this.add_vat_total_cost = add_vat_total_cost.toFixed(2);
+                    }
+
+                    //Less:  EWT
+                    var less_ewt_labor_cost = Number(this.discounted_total_cost_vatex_labor_cost) * Number(this.ewt_rate);
+                    this.less_ewt_labor_cost = less_ewt_labor_cost.toFixed(2);
+                    this.less_ewt_total_cost = less_ewt_labor_cost.toFixed(2);
+
+                    //NET TOTAL AMOUNT PAYABLE
+                    var new_net_total = Number(this.discounted_total_cost_vatex_total_cost) + Number(this.add_vat_total_cost) - Number(this.less_ewt_labor_cost) + Number(this.add_shipment_delivery_cost);
+                    this.net_total_amount_payable = new_net_total.toFixed(2);
+
+                }
+            }
+        })
+    </script>
+</body>
+</html>

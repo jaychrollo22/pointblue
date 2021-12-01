@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Pointblue Exams</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3JCAhNj6tVAO_LSb8M-AzMlidiT-RPAs"
+      defer
+    ></script>
+
+    <style>
+        /* Always set the map height explicitly to define the size of the div
+        * element that contains the map. */
+        #map {
+            margin-left: auto;
+	        margin-right: auto;
+            height: 50%;
+            width: 50%;
+        }
+
+        /* Optional: Makes the sample page fill the window. */
+        html,
+            body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+            <a class="navbar-brand" href="#">POINTBLUE</a>
+            </div>
+            <ul class="nav navbar-nav">
+            <li><a href="item_1.html">ITEM 1</a></li>
+            <li><a href="item_2.html">ITEM 2</a></li>
+            <li><a href="item_3.html">ITEM 3</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div id="app">
+        <div class="container">
+            <div class="container">
+                <p>
+                    <strong>Item 3</strong>  : Create an interactive Point Blue building locator Web App using the Google Maps API. The web app should display the full address of the selected building and the location of it in the map. The map should also redirect to Google Maps, where the destination is automatically the selected building on the web app. You may use JavaScript/HTML/Google Appscript for the web app and JSON for the integration to Google Maps API. 			
+                </p>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>ADDRESS</label>
+                            <select class="form-control" v-model="address" @change="changePin(address)">
+                                <option value="">SELECT ADDRESS</option>
+                                <option value='BONIFACIO POINT-2063 Nuestra Senora de Guadalupe, Guadalupe Nuevo, Makati City'>BONIFACIO POINT</option>
+                                <option value='RICARTE BGC-2018 General Ricarte St., South Cembo, Makati City'>RICARTE BGC</option>
+                                <option value='TEKA MAKATI-7959 Teka St., San Antonio, Makati City'>TEKA MAKATI</option>
+                                <option value='ESTRELLA MAKATI-8080 Estrella St, San Antonio, Makati City'>ESTRELLA MAKATI</option>
+                                <option value='GENERAL LUNA BGC-1100 General Luna St, South Cembo, Makati City'>GENERAL LUNA BGC</option>
+                                <option value='QUEZON BGC-6070 Quezon St., South Cembo, Makati City'>QUEZON BGC</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-12" v-if="result">
+                       <span>Address : {{result.results[0].formatted_address}}</span><br>
+                       <span>Lat : {{result.results[0].geometry.location.lat}}</span><br>
+                       <span>Lng : {{result.results[0].geometry.location.lng}}</span><br>
+                       <a :href="link_details" target="_blank">View Map</a><br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="map"></div>
+    
+    <script>
+        var app = new Vue({
+            el: '#app',
+            name : 'Map',
+            data : {
+                result : '',
+                address : '',
+                selected_address : '',
+                lat : 0,
+                lng : 0,
+                map : '',
+                link_details : '',
+            },
+            created () {
+                
+            },
+            methods: {
+                changePin(address) {
+                    this.selected_address = address.split("-");
+                    const api_url = "https://maps.googleapis.com/maps/api/geocode/json?address="+this.selected_address[1]+"&key=AIzaSyC3JCAhNj6tVAO_LSb8M-AzMlidiT-RPAs"; 
+                    fetch(api_url)
+                    .then(res => res.json())
+                    .then((data) => {
+                        this.result = data;
+                        var get_link = '';
+                        this.link_details = "http://maps.google.com?q="+data.results[0].geometry.location.lat+","+data.results[0].geometry.location.lng+"";
+                        this.lat = data.results[0].geometry.location.lat;
+                        this.lng = data.results[0].geometry.location.lng;
+
+                        this.initMap();
+                    })
+                    .catch(err => { throw err });
+                },
+                initMap(){
+                    var map = new google.maps.Map(document.getElementById('map'), {
+                        center: {lat: this.lat, lng: this.lng},
+                        zoom: 50
+                    });
+                }
+            },
+        })
+    </script>
+
+    
+   <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</body>
+</html>
