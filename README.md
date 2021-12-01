@@ -3,7 +3,7 @@
 Installation Guide
 
 1. Install XAMPP
-2. Start XAMPP Control -> start and mysql
+2. Start XAMPP Control -> start mysql
 3. Go to htdocs -> c://xampp/htdocs
 4. Copy and paste this folder "pointblue"
 5. Go to browser type localhost/phpmyadmin
