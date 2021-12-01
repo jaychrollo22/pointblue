@@ -1,4 +1,4 @@
-# pointblue
+# Pointblue
 
 Installation Guide
 
